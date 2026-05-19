@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import api from "../../services/api"
 import type { TasksResponse } from "../../types/task"
+import { KanbanBoard } from '../../../@/components/KanbanBoard/KanbanBoard'
+import { Navbar } from '../../../@/components/NavBar/NavBar'
 
 async function getTasks(status: string){
     const response = await api.get<TasksResponse>('/tasks',{
@@ -36,25 +38,15 @@ function Task(){
     }
 
     return (
-        <div>
-            <div>
-                <h2>Not started</h2>
-                {(notStarted.data?.tasks ?? []).map(tasks => (
-                    <div key={tasks.id}>{tasks.title}</div>
-                    ))}
-            </div>
-            <div>
-                <h2>In progress</h2>
-                {(inProgress.data?.tasks ?? []).map(tasks => (
-                    <div key={tasks.id}>{tasks.title}</div>
-                    ))}
-            </div>
-            <div>
-                <h2>Done</h2>
-                {(done.data?.tasks ?? []).map(tasks => (
-                    <div key={tasks.id}>{tasks.title}</div>
-                    ))}
-            </div>
+        <div className="min-h-screen bg-background">
+            <Navbar />
+            <main className="mx-auto max-w-7xl p-6">
+                <KanbanBoard tasks={{
+                    not_started: notStarted.data?.tasks ?? [],
+                    in_progress: inProgress.data?.tasks ?? [],
+                    done: done.data?.tasks ?? []
+                }} />
+            </main>
         </div>
     )
 }
