@@ -3,6 +3,7 @@ import { Button } from '../ui/button'
 import { LogOut, LayoutGrid } from 'lucide-react'
 import api from '@/services/api'
 import { removeTokens } from '@/services/auth'
+import { CreateTaskModal } from '../CreateTaskModal/CreateTaskModal'
 
 
 export function Navbar() {
@@ -27,15 +28,18 @@ export function Navbar() {
           </div>
           <span className="text-xl font-semibold text-foreground">TaskFlow</span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground hover:text-foreground hover:bg-secondary"
-          onClick={handleLogout}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Sair
-        </Button>
+        <div className="flex items-center gap-2">
+          <CreateTaskModal/>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary"
+            onClick={handleLogout}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
+          </Button>
+        </div>
       </div>
     </nav>
   )

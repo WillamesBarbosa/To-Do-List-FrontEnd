@@ -8,8 +8,7 @@ async function getTasks(status: string){
     const response = await api.get<TasksResponse>('/tasks',{
         params: { status, limit: 10, page:1 }
     })
-
-    console.log(response.data, ' ta chamando isso aqq?')
+    
     return  response.data
 }
 
