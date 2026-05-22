@@ -1,7 +1,23 @@
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
 import { LogOut, LayoutGrid } from 'lucide-react'
+import api from '@/services/api'
+import { removeTokens } from '@/services/auth'
+
 
 export function Navbar() {
+  const navigate = useNavigate()
+
+  async function handleLogout(){
+    try {
+      await api.post('/logout')
+    } finally {
+      removeTokens()
+      navigate('/')
+    }
+
+  }
+
   return (
     <nav className="border-b border-border bg-card">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -15,7 +31,7 @@ export function Navbar() {
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-foreground hover:bg-secondary"
-          onClick={() => {}}
+          onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Sair
