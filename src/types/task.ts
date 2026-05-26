@@ -18,3 +18,5 @@ export interface TasksResponse{
         totalPage: number
     }
 }
+
+export type TaskStatus = 'not_started' | 'in_progress' | 'done'

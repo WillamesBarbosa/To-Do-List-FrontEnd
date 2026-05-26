@@ -28,26 +28,34 @@ function Task(){
         queryFn: ()=> getTasks('done')
     })
 
-    if (notStarted.isLoading || inProgress.isLoading || done.isLoading) {
-        return <div>Carregando...</div>
-    }
-
-    if (notStarted.isError || inProgress.isError || done.isError) {
-        return <div>Erro ao carregar tasks</div>
-    }
-
+if (notStarted.isLoading || inProgress.isLoading || done.isLoading) {
     return (
-        <div className="min-h-screen bg-background">
-            <Navbar />
-            <main className="mx-auto max-w-7xl p-6">
-                <KanbanBoard tasks={{
-                    not_started: notStarted.data?.tasks ?? [],
-                    in_progress: inProgress.data?.tasks ?? [],
-                    done: done.data?.tasks ?? []
-                }} />
-            </main>
+        <div className="flex h-screen items-center justify-center bg-background">
+            <p className="text-muted-foreground animate-pulse">Carregando tasks...</p>
         </div>
     )
+}
+
+if (notStarted.isError || inProgress.isError || done.isError) {
+    return (
+        <div className="flex h-screen items-center justify-center bg-background">
+            <p className="text-destructive">Erro ao carregar tasks. Tente novamente.</p>
+        </div>
+    )
+}
+
+return (
+    <div className="h-screen overflow-hidden bg-background">
+        <Navbar />
+        <main className="mx-auto max-w-7xl p-6 h-[calc(100vh-64px)] overflow-hidden w-full">
+            <KanbanBoard tasks={{
+                not_started: notStarted.data?.tasks ?? [],
+                in_progress: inProgress.data?.tasks ?? [],
+                done: done.data?.tasks ?? []
+            }} />
+        </main>
+    </div>
+)
 }
 
 export default Task

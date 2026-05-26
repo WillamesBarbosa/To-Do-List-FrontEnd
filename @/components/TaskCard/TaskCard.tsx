@@ -1,8 +1,10 @@
+import { useDraggable } from '@dnd-kit/core'
 import { cn } from "../../lib/utils"
 
 export type TaskStatus = "not_started" | "in_progress" | "done"
 
 interface TaskCardProps {
+  id: string
   title: string
   description: string
   status: TaskStatus
@@ -23,25 +25,38 @@ const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
   },
 }
 
-export function TaskCard({ title, description, status }: TaskCardProps) {
-  const config = statusConfig[status]
+export function TaskCard({ id, title, description, status }: TaskCardProps) {
+    const config = statusConfig[status]
+
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+        id,
+    })
+
+    const style = isDragging ? { opacity: 0 } : undefined
 
   return (
-    <div className="group rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <h3 className="font-medium text-foreground leading-tight">{title}</h3>
-      </div>
-      <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-        {description}
-      </p>
-      <span
-        className={cn(
-          "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
-          config.className
-        )}
-      >
-        {config.label}
-      </span>
-    </div>
-  )
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...listeners}
+            {...attributes}
+            className={cn(
+                'group rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-grab',
+                isDragging && 'opacity-50 cursor-grabbing'
+            )}
+        >
+            <div className="mb-3 flex items-start justify-between gap-2">
+                <h3 className="font-medium text-foreground leading-tight">{title}</h3>
+            </div>
+            <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
+                {description}
+            </p>
+            <span className={cn(
+                'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium',
+                config.className
+            )}>
+                {config.label}
+            </span>
+        </div>
+    ) 
 }

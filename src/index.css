@@ -123,3 +123,8 @@
     @apply font-sans;
     }
 }
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
