@@ -1,8 +1,8 @@
-import { DndContext, DragOverlay, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useQueryClient, useMutation  } from '@tanstack/react-query'
 import { KanbanColumn } from '../KanbanColumn/KanbanColumn'
 import type { Task, TasksResponse, TaskStatus } from '../../../src/types/task'
-import api from '@/services/api'
+import api from '../../../src/services/api'
 import { useState } from 'react'
 import { TaskCard } from '../TaskCard/TaskCard'
 
@@ -25,13 +25,21 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
     const queryClient = useQueryClient()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
 
+    const sensors = useSensors(
+    useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 8,
+        },
+    })
+)
+
         const { mutate } = useMutation({
         mutationFn: ({ taskId, newStatus }: { taskId: string; newStatus: TaskStatus }) =>
             api.patch(`/task/${taskId}/status`, { nextStatus: newStatus }),
 
         onMutate: async ({ taskId, newStatus }) => {
             // cancela queries em andamento pra evitar conflito
-            await queryClient.cancelQueries({ queryKey: ['tasks'] })
+                await queryClient.cancelQueries({ queryKey: ['tasks'] })
 
             // salva o estado atual como backup
             const previousNotStarted = queryClient.getQueryData<TasksResponse>(['tasks', 'not_started'])
@@ -47,7 +55,6 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
                 taskToMove = data?.tasks.find(t => t.id === taskId)
                 if (taskToMove) break
             }
-
             if (!taskToMove) return
 
             // remove da coluna antiga
@@ -62,13 +69,22 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
             }
 
             // adiciona na nova coluna
-            queryClient.setQueryData<TasksResponse>(['tasks', newStatus], (old) => {
-                if (!old) return old
-                return {
-                    ...old,
-                    tasks: [...old.tasks, { ...taskToMove!, status: newStatus }]
+        queryClient.setQueryData<TasksResponse>(['tasks', newStatus], (old) => {
+            const currentTasks = old?.tasks ?? []
+
+
+            return {
+                tasks: [...currentTasks, { ...taskToMove!, status: newStatus }],
+                pagination: old?.pagination ?? {
+                    page: 1,
+                    limit: 10,
+                    totalTasks: 1,
+                    totalPage: 1
                 }
-            })
+            }
+        })
+
+            
 
             // retorna backup pra usar no onError
             return { previousNotStarted, previousInProgress, previousDone }
@@ -87,10 +103,9 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
             }
         },
 
-        onSettled: () => {
-            // sincroniza com o servidor após sucesso ou erro
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
-        }
+        // onSettled: () => {
+        //     queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        // }
     })
 
     function handleDragStart(event: DragStartEvent) {
@@ -104,21 +119,29 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
         if (task) setActiveTask(task)
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event
-        setActiveTask(null)
+function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveTask(null)
 
-        if (!over) return
-        if (active.id === over.id) return
+    if (!over) return
 
-        const taskId = active.id as string
-        const newStatus = over.id as TaskStatus
+    const taskId = active.id as string
+    const newStatus = over.id as TaskStatus
 
-        mutate({ taskId, newStatus })
-    }
+    // verifica se o status mudou de verdade
+    const currentTask = [
+        ...tasks.not_started,
+        ...tasks.in_progress,
+        ...tasks.done
+    ].find(t => t.id === taskId)
+
+    if (currentTask?.status === newStatus) return
+
+    mutate({ taskId, newStatus })
+}
 
     return (
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>            
             <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-3 overflow-hidden">
                 {columns.map((column) => (
                     <KanbanColumn

@@ -4,12 +4,18 @@ import type { TasksResponse } from "../../types/task"
 import { KanbanBoard } from '../../../@/components/KanbanBoard/KanbanBoard'
 import { Navbar } from '../../../@/components/NavBar/NavBar'
 
-async function getTasks(status: string){
-    const response = await api.get<TasksResponse>('/tasks',{
-        params: { status, limit: 10, page:1 }
-    })
-    
-    return  response.data
+async function getTasks(status: string) {
+    try {
+        const response = await api.get<TasksResponse>('/tasks', {
+            params: { status, limit: 10, page: 1 }
+        })
+        return response.data
+    } catch (error: any) {
+        if (error.response?.status === 204) {
+            return { tasks: [], pagination: { page: 1, limit: 10, totalTasks: 0, totalPage: 0 } }
+        }
+        throw error
+    }
 }
 
 function Task(){

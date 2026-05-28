@@ -20,10 +20,7 @@ export function KanbanColumn({ title, tasks, status }: KanbanColumnProps) {
         id: status,
   })
   return (
-        <div
-            ref={setNodeRef}
-            className={`flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg p-1 transition-colors min-h-[200px] ${isOver ? 'bg-primary/10' : ''}`}
-        >
+        <div className="flex h-full flex-col rounded-xl border border-border bg-secondary/30 p-4">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     {title}
@@ -34,7 +31,7 @@ export function KanbanColumn({ title, tasks, status }: KanbanColumnProps) {
             </div>
             <div
                 ref={setNodeRef}
-                className={`flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg p-1 transition-colors ${isOver ? 'bg-primary/10' : ''}`}
+                className={`flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg p-1 transition-colors min-h-[200px] ${isOver ? 'bg-primary/10' : ''}`}
             >
                 {tasks.map((task) => (
                     <TaskCard
