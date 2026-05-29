@@ -103,9 +103,9 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
             }
         },
 
-        // onSettled: () => {
-        //     queryClient.invalidateQueries({ queryKey: ['tasks'] })
-        // }
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        }
     })
 
     function handleDragStart(event: DragStartEvent) {
