@@ -5,17 +5,14 @@ import { KanbanBoard } from '../../../@/components/KanbanBoard/KanbanBoard'
 import { Navbar } from '../../../@/components/NavBar/NavBar'
 
 async function getTasks(status: string) {
-    try {
         const response = await api.get<TasksResponse>('/tasks', {
             params: { status, limit: 10, page: 1 }
         })
-        return response.data
-    } catch (error: any) {
-        if (error.response?.status === 204) {
-            return { tasks: [], pagination: { page: 1, limit: 10, totalTasks: 0, totalPage: 0 } }
-        }
-        throw error
+        
+        if (response.status === 204 || !response.data) {
+        return { tasks: [], pagination: { page: 1, limit: 10, totalTasks: 0, totalPage: 0 } }
     }
+        return response.data
 }
 
 function Task(){
@@ -27,12 +24,12 @@ function Task(){
     const inProgress = useQuery({
         queryKey: ['tasks', 'in_progress'],
         queryFn: ()=> getTasks('in_progress')
-    })
+        })
 
     const done = useQuery({
         queryKey: ['tasks', 'done'],
         queryFn: ()=> getTasks('done')
-    })
+        })
 
 if (notStarted.isLoading || inProgress.isLoading || done.isLoading) {
     return (
