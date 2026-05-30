@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../ui/button'
-import { LogOut, LayoutGrid } from 'lucide-react'
+import { LogOut, LayoutGrid, User } from 'lucide-react'
 import api from '@/services/api'
 import { removeTokens } from '@/services/auth'
 import { CreateTaskModal } from '../CreateTaskModal/CreateTaskModal'
@@ -29,6 +29,15 @@ export function Navbar() {
           <span className="text-xl font-semibold text-foreground">TaskFlow</span>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary"
+            onClick={() => navigate('/profile')}
+        >
+            <User className="mr-2 h-4 w-4" />
+            Perfil
+        </Button>
           <CreateTaskModal/>
           <Button
             variant="ghost"

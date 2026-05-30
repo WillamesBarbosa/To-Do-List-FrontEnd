@@ -4,6 +4,7 @@ import Register from './pages/Register/Register'
 import Task from './pages/Tasks/Tasks'
 import { PrivateRoute } from '../@/components/PrivateRoute/PrivateRoute'
 import { getToken } from './services/auth'
+import Profile from './pages/Profile/Profile'
 
 function App(){
   const token = getToken()
@@ -18,6 +19,11 @@ function App(){
           </PrivateRoute>
           } />
       <Route path='/register' element={<Register/>}/>
+      <Route path="/profile" element={
+        <PrivateRoute>
+          <Profile />
+        </PrivateRoute>
+      } />
     </Routes>
   )
 }
