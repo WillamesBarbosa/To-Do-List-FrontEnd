@@ -3,6 +3,7 @@ import api from "../../services/api"
 import type { TasksResponse } from "../../types/task"
 import { KanbanBoard } from '../../../@/components/KanbanBoard/KanbanBoard'
 import { Navbar } from '../../../@/components/NavBar/NavBar'
+import { LoadingScreen } from '../../../@/components/LoadingScreen/LoadingScreen'
 
 async function getTasks(status: string) {
         const response = await api.get<TasksResponse>('/tasks', {
@@ -32,11 +33,7 @@ function Task(){
         })
 
 if (notStarted.isLoading || inProgress.isLoading || done.isLoading) {
-    return (
-        <div className="flex h-screen items-center justify-center bg-background">
-            <p className="text-muted-foreground animate-pulse">Carregando tasks...</p>
-        </div>
-    )
+    return <LoadingScreen />
 }
 
 if (notStarted.isError || inProgress.isError || done.isError) {
