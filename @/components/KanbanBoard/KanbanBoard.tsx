@@ -38,15 +38,15 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
             api.patch(`/task/${taskId}/status`, { nextStatus: newStatus }),
 
         onMutate: async ({ taskId, newStatus }) => {
-            // cancela queries em andamento pra evitar conflito
+            // Cancel ongoing appointments to avoid conflicts.
                 await queryClient.cancelQueries({ queryKey: ['tasks'] })
 
-            // salva o estado atual como backup
+            // Save the current state as a backup.
             const previousNotStarted = queryClient.getQueryData<TasksResponse>(['tasks', 'not_started'])
             const previousInProgress = queryClient.getQueryData<TasksResponse>(['tasks', 'in_progress'])
             const previousDone = queryClient.getQueryData<TasksResponse>(['tasks', 'done'])
 
-            // encontra a task em qualquer coluna
+            // Find the task in any column.
             const allStatuses: TaskStatus[] = ['not_started', 'in_progress', 'done']
             let taskToMove: Task | undefined
 
@@ -57,7 +57,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
             }
             if (!taskToMove) return
 
-            // remove da coluna antiga
+            // Remove from old column
             for (const status of allStatuses) {
                 queryClient.setQueryData<TasksResponse>(['tasks', status], (old) => {
                     if (!old) return old
@@ -68,7 +68,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
                 })
             }
 
-            // adiciona na nova coluna
+            // Add in new column
         queryClient.setQueryData<TasksResponse>(['tasks', newStatus], (old) => {
             const currentTasks = old?.tasks ?? []
 
@@ -86,12 +86,12 @@ export function KanbanBoard({ tasks }: KanbanBoardProps){
 
             
 
-            // retorna backup pra usar no onError
+            // Restores backup to use in onError.
             return { previousNotStarted, previousInProgress, previousDone }
         },
 
         onError: (_err, _variables, context) => {
-            // reverte pro estado anterior se a API falhar
+            // Reverts to the previous state if the API fails.
             if (context?.previousNotStarted) {
                 queryClient.setQueryData(['tasks', 'not_started'], context.previousNotStarted)
             }
@@ -128,7 +128,7 @@ function handleDragEnd(event: DragEndEvent) {
     const taskId = active.id as string
     const newStatus = over.id as TaskStatus
 
-    // verifica se o status mudou de verdade
+    // Check if the status has actually changed.
     const currentTask = [
         ...tasks.not_started,
         ...tasks.in_progress,
